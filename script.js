@@ -9,7 +9,8 @@ class Cell {
         if (this.alive) {
             fill(0, 255, 0);
         } else {
-            fill(255);
+            delete this.x
+            delete this.y
         }
         rect(this.x, this.y, 10, 10);
     }
@@ -29,19 +30,17 @@ function setup() {
 
 function setupGrid() { // creates the grid with 10 pixels in between each cell.
     for(let i = 0; i < windowWidth; i+=10) {
-        line(i, 0, i, windowHeight);
+        line(i, 0, i, Math.floor(windowHeight / 10) * 10);
     }
     for(let i = 0; i < windowHeight; i+=10) {       
-        line(0, i, windowWidth, i);
+        line(0, i, Math.floor(windowWidth/10)*10, i);
     }
 }
 function createCell() {
-    if(cellCount < 10) {     
-        for(let i = 0; i < 10; i++) {
+    if(cellCount < 2000) {     
+        for(let i = 0; i < 2000; i++) {
             cellCount[i] = new Cell(randomNumberRounded(windowWidth), randomNumberRounded(windowHeight))
             cellCount[i].show()
-            console.log(cellCount[i].x)
-            console.log(cellCount[i].y)
         }
     }
 }
@@ -53,15 +52,33 @@ function moveCell() {
         Math.floor(Math.random() * 2) == 0 ? 
             cell.x += dir[Math.floor(Math.random()*2)] : cell.y += dir[Math.floor(Math.random()*2)]
 
-        cell.x = constrain(cell.x, 0, windowWidth - 4)
-        cell.y = constrain(cell.y, 0, windowHeight - 7)
+        cell.x = constrain(cell.x, 0, Math.floor(windowWidth/10)*10 - 10)
+        cell.y = constrain(cell.y, 0, Math.floor(windowHeight / 10) * 10 - 10)
         cell.show()
     })
 }
 
 function countNeighbor() {
     var map = {}
-
+    var neighborCount = 0
+    var counter = 0
+    cellCount.forEach(cell => {
+        map[counter] = cell
+        counter++
+    })
+    for(let i = 0; i < cellCount.length; i++) {
+        for(let j = 0; j < cellCount.length; j++) {
+            if((map[i].x == map[j].x + 10 && map[i].y == map[j].y + 10) || (map[i].x == map[j].x - 10 && map[i].y == map[j].y - 10) || (map[i].x == map[j].x + 10 && map[i].y == map[j].y - 10) || (map[i].x == map[j].x - 10 && map[i].y == map[j].y + 10)) {
+                neighborCount++
+            }
+        }
+        if(!(neighborCount == 3 || neighborCount == 2)) {
+            map[i].alive = false
+        }
+        neighborCount = 0
+    }
+    map = {}
+    counter = 0
 }
 
 function draw() {
@@ -71,6 +88,7 @@ function draw() {
     setupGrid()
     createCell()
     moveCell()
+    countNeighbor()
 }
 
 /*
