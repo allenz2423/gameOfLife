@@ -8,24 +8,25 @@ class Cell {
     show() {
         if (this.alive) {
             fill(0, 255, 0);
+            rect(this.x, this.y, 10, 10);
         } else {
             delete this.x
             delete this.y
         }
-        rect(this.x, this.y, 10, 10);
     }
 }
 
 
-let cell, cellCount = []
+let cell, cellCount = [], checkIfRan = false
 function randomNumberRounded(len) {
     var rand = Math.floor(Math.random() * (len/10)) * 10
-    console.log(rand)
+    // console.log(rand)
     return rand
 }
+
 function setup() {
     createCanvas(windowWidth, windowHeight);
-    frameRate(5)
+    frameRate(1)
 }
 
 function setupGrid() { // creates the grid with 10 pixels in between each cell.
@@ -37,29 +38,46 @@ function setupGrid() { // creates the grid with 10 pixels in between each cell.
     }
 }
 function createCell() {
-    if(cellCount < 2000) {     
-        for(let i = 0; i < 2000; i++) {
-            cellCount[i] = new Cell(randomNumberRounded(windowWidth), randomNumberRounded(windowHeight))
-            cellCount[i].show()
-        }
+    // if(!checkIfRan) {
+    //     for(let i = 0; i < 2000; i++) {
+    //         cellCount[i] = new Cell(randomNumberRounded(windowWidth), randomNumberRounded(windowHeight))
+    //         cellCount[i].show()
+    //     }
+    // }
+    // checkIfRan = true
+    if(!checkIfRan){
+        cellCount[0] = new Cell(10,10)
+        
+        cellCount[1] = new Cell(20,20)
+        
+        cellCount[2] = new Cell(10,20)
+        
+        cellCount[3] = new Cell(20,10)
+        
     }
+    checkIfRan = true
+    cellCount[0].show()
+    cellCount[1].show()
+    cellCount[2].show()
+    cellCount[3].show()
 }
 
-function moveCell() {
-    // This is a KISS implementation of the movement system
-    var dir = [-10,10]
-    cellCount.forEach(cell => {
-        Math.floor(Math.random() * 2) == 0 ? 
-            cell.x += dir[Math.floor(Math.random()*2)] : cell.y += dir[Math.floor(Math.random()*2)]
+// function moveCell() {
+//     // This is a KISS implementation of the movement system
+//     var dir = [-10,10]
+//     cellCount.forEach(cell => {
+//         Math.floor(Math.random() * 2) == 0 ? 
+//             cell.x += dir[Math.floor(Math.random()*2)] : cell.y += dir[Math.floor(Math.random()*2)]
 
-        cell.x = constrain(cell.x, 0, Math.floor(windowWidth/10)*10 - 10)
-        cell.y = constrain(cell.y, 0, Math.floor(windowHeight / 10) * 10 - 10)
-        cell.show()
-    })
-}
+//         cell.x = constrain(cell.x, 0, Math.floor(windowWidth/10)*10 - 10)
+//         cell.y = constrain(cell.y, 0, Math.floor(windowHeight / 10) * 10 - 10)
+//         cell.show()
+//     })
+// }
 
 function countNeighbor() {
     var map = {}
+    var queueToDie = []
     var neighborCount = 0
     var counter = 0
     cellCount.forEach(cell => {
@@ -68,15 +86,30 @@ function countNeighbor() {
     })
     for(let i = 0; i < cellCount.length; i++) {
         for(let j = 0; j < cellCount.length; j++) {
-            if((map[i].x == map[j].x + 10 && map[i].y == map[j].y + 10) || (map[i].x == map[j].x - 10 && map[i].y == map[j].y - 10) || (map[i].x == map[j].x + 10 && map[i].y == map[j].y - 10) || (map[i].x == map[j].x - 10 && map[i].y == map[j].y + 10)) {
+            if(
+                map[i].x == map[j].x + 10 
+                || 
+                map[i].y == map[j].y + 10
+                ||
+                map[i].x == map[j].x - 10
+                ||
+                map[i].y == map[j].y - 10
+                ) {
                 neighborCount++
             }
         }
-        if(!(neighborCount == 3 || neighborCount == 2)) {
-            map[i].alive = false
+        console.log(neighborCount)
+        if(neighborCount > 3 || neighborCount < 2) {
+            queueToDie.push(map[i])
+            console.log(queueToDie)
         }
         neighborCount = 0
     }
+    queueToDie.forEach(cell => {
+        cell.alive = false
+        delete cell
+        console.log("deleted")
+    })
     map = {}
     counter = 0
 }
@@ -87,7 +120,7 @@ function draw() {
     stroke(0);
     setupGrid()
     createCell()
-    moveCell()
+    // moveCell()
     countNeighbor()
 }
 
