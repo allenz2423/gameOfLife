@@ -47,21 +47,22 @@ function createCell() {
     // checkIfRan = true
     if(!checkIfRan){
         cellCount[0] = new Cell(10,10)
-        
         cellCount[1] = new Cell(20,20)
-        
         cellCount[2] = new Cell(10,20)
-        
         cellCount[3] = new Cell(20,10)
-        
     }
+    cellCount.forEach(function(item, index, object) {
+        if (!item.alive) {
+          object.splice(index, 1);
+        }
+    })
     checkIfRan = true
     cellCount[0].show()
     cellCount[1].show()
     cellCount[2].show()
     cellCount[3].show()
-}
 
+}
 // function moveCell() {
 //     // This is a KISS implementation of the movement system
 //     var dir = [-10,10]
@@ -98,7 +99,7 @@ function countNeighbor() {
                 neighborCount++
             }
         }
-        console.log(neighborCount)
+        // console.log(neighborCount)
         if(neighborCount > 3 || neighborCount < 2) {
             queueToDie.push(map[i])
             console.log(queueToDie)
@@ -107,11 +108,10 @@ function countNeighbor() {
     }
     queueToDie.forEach(cell => {
         cell.alive = false
-        delete cell
-        console.log("deleted")
     })
     map = {}
     counter = 0
+    queueToDie = []
 }
 
 function draw() {
